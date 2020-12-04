@@ -29,19 +29,6 @@ COL_Y   = 2;
 COL_Z   = 3;
 COL_LAT = 4;
 COL_LNG = 5;
-COL_DST = 6;
-
-
-viz = false;
-% for i=1:2:length(varargin)-1
-%    switch lower(varargin{i})
-%       case 'viz'
-%          viz = varargin{i+1};
-%       otherwise
-%          error('loadgpx:unrecognized_input','Unrecognized argument "%s"',...
-%             varargin{i});
-%    end
-% end
 
 d = xmlread(fileName);
 
@@ -89,61 +76,4 @@ lat_mean=mean(route(:,COL_LAT));
 KM_PER_ARCMINUTE = 1.852;
 route(:,COL_X:COL_Y) = KM_PER_ARCMINUTE*1000*60*route(:,COL_X:COL_Y);
 route(:,COL_X) = route(:,COL_X)*cos(lat_mean/180*pi);
-distMult = 1/1000;
-
-
-
-% if viz
-%    %cumulative distance - calculate including the elevation hypotenuse
-%    route(1,COL_DST) = 0;
-%    route(2:end,COL_DST) = sqrt(sum((route(1:end-1,COL_X:COL_Z)-route(2:end,COL_X:COL_Z)).^2,2));
-%    route(:,COL_DST) = cumsum(route(:,COL_DST));
-%    
-%    %calculate total elevation gain
-%    deltaZ=route(2:end,COL_Z)-route(1:end-1,COL_Z);
-%    deltaZ=sum(deltaZ(deltaZ>0));
-%    
-%    minZ = min(route(:,COL_Z));
-%    
-%    clf
-%    set(gcf,'color','white','name',sprintf('loadgpx - %s',fileName));
-%    ax2=axes('outerposition',[0 0 1 .3],'nextplot','add');
-%    plot(distMult*route(:,COL_DST),route(:,COL_Z),...
-%       'k-','linewidth',2,...
-%       'parent',ax2)
-%    area(distMult*route(:,COL_DST),route(:,COL_Z),...
-%       'parent',ax2)
-%    
-%    set(ax2,...
-%       'box','on',...
-%       'color','none',...
-%       'xtickmode','auto',...
-%       'ylim',[.9*minZ,1.1*max(route(:,COL_Z))],...
-%       'xlim',distMult*[min(route(:,COL_DST)) max(route(:,COL_DST))]);
-%    ylabel('meters');
-%    title(sprintf('cumulative elevation gain = %i %s',round(deltaZ),'meters'))
-%    
-%    ax2=axes('outerposition',[0 .3 1 .7],'nextplot','add');
-%    
-%    
-%    plot3(distMult*route(:,1),distMult*route(:,2),route(:,3),'k-',...
-%       'linewidth',2);
-%    
-%    hr=trisurf(...
-%       [[(1:ptCt-1)',(2:ptCt)',(ptCt+1:ptCt+ptCt-1)'];[(ptCt+1:ptCt+ptCt-1)',1+(ptCt+1:ptCt+ptCt-1)',(2:ptCt)']],...
-%       distMult*[route(:,COL_X);route(:,COL_X)],...
-%       distMult*[route(:,COL_Y);route(:,COL_Y)],...
-%       [route(:,COL_Z);minZ*ones(size(route(:,COL_Z)))],...
-%       'facecolor','b',...
-%       'edgecolor','none',...
-%       'facealpha',.8);
-%    
-%    deltaXYZ = max(route(:,COL_X:COL_Z))-min(route(:,COL_X:COL_Z));
-%    
-%    set(ax2,...
-%       'box','on',...
-%       'dataaspectratio',[1 1 2*deltaXYZ(3)/(distMult*max(deltaXYZ(1:2)))]);
-%    axis(ax2,'tight');
-% end
-
 end
