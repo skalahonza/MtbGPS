@@ -2,13 +2,14 @@ function gui()
 close all force;
 fig = uifigure('Position',[100 100 637 517]);
 
+%% UI menu
+m = uimenu(fig, 'Text','File');
+mOpen = uimenu(m,'Text','Open');
+
 %% Dashboard
 mainG = uigridlayout(fig,[3 2]);
 mainG.RowHeight = {'8x','2x', 30};
 mainG.ColumnWidth = {'2x' ,'8x'};
-
-%% UI Context Menu
-
 
 %% map
 gx = geoaxes(mainG);
