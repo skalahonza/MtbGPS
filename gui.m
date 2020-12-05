@@ -43,7 +43,7 @@ distanceL.HorizontalAlignment = 'center';
 speed = uigauge(leftG,'semicircular');
 speed.Limits = [0 50];
 speedL = uilabel(leftG);
-speedL.Text = 'Speed: KM/H';
+speedL.Text = 'Speed: 0 KM/H';
 speedL.HorizontalAlignment = 'center';
 speedL.FontSize = 14;
 
@@ -75,26 +75,36 @@ elevationL.Layout.Column = [1 2];
 [openFileClicked] = uiState();
 
 % Open file clicked
-mOpen.MenuSelectedFcn = @(src, event)openFileClicked(elevation);
+mOpen.MenuSelectedFcn = @(src, event)openFileClicked(elevation,...
+    distance, speed, speedL);
 end
 
 function [openFileClicked] = uiState()
 openFileClicked = @openFile;
 
-distance = 0;
-speed = 0;
 calories = 0;
 elevation = [];
 
-function openFile(elevationPlot)
+function openFile(elevationPlot, distanceG, speedG, speedL)
     [f,p] = uigetfile('*.gpx');
     if isequal(f,0)
        disp('User selected Cancel');
     else
        route = loadgpx(fullfile(p,f),'ElevationUnits','meters');
+       
+       % elevation
        elevation = route(:,3);       
        plot(elevationPlot, elevation' ,'-x');
        elevationPlot.YLim = [min(elevation) max(elevation)];
+       
+       % distance
+       d = distance(route(:,1),route(:,2));
+       distanceG.Text = num2str(d/1000);
+       
+       % speed
+       s = speed(d, route(:,10:12));
+       speedG.Value = s*3.6;
+       speedL.Text = sprintf('Speed: %.2f KM/H', s*3.6);
     end
 end
 
