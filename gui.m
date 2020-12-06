@@ -55,6 +55,7 @@ elevation = uiaxes(mainG, ...
 elevation.Layout.Row = 3;
 elevation.Layout.Column = 1;
 elevation.YLim = [0 inf];
+title(elevation, 'Elevation over time');
 ylabel(elevation,'Elevation (m)');
 
 %% Speed graph
@@ -65,6 +66,7 @@ speedG.Layout.Row = 4;
 speedG.Layout.Column = 1;
 speedG.YLim = [0 100];
 ylabel(speedG,'Speed (KM/H)');
+title(speedG, 'Speed over time');
 linkaxes([elevation, speedG],'x');
 
 %% handlers
