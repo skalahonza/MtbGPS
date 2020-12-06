@@ -16,12 +16,7 @@ mainG.ColumnWidth = {150 ,'1x'};
 gx = geoaxes(mainG);
 gx.Layout.Row = 1;
 gx.Layout.Column = 2;
-latSeattle = 47.62;
-lonSeattle = -122.33;
-latAnchorage = 61.20;
-lonAnchorage = -149.9;
-geoplot(gx,[latSeattle latAnchorage],[lonSeattle lonAnchorage],'g-*')
-geobasemap(gx,'streets')
+geobasemap(gx,'streets');
 
 %% left panel
 leftG = uigridlayout(mainG,[6 1]);
@@ -43,7 +38,7 @@ distanceL.HorizontalAlignment = 'center';
 speed = uigauge(leftG,'semicircular');
 speed.Limits = [0 50];
 speedL = uilabel(leftG);
-speedL.Text = 'Speed: 0 KM/H';
+speedL.Text = 'Average Speed: 0 KM/H';
 speedL.HorizontalAlignment = 'center';
 speedL.FontSize = 14;
 
@@ -76,20 +71,22 @@ elevationL.Layout.Column = [1 2];
 
 % Open file clicked
 mOpen.MenuSelectedFcn = @(src, event)openFileClicked(elevation,...
-    distance, speed, speedL);
+    distance, speed, speedL, gx);
 end
 
 function [openFileClicked] = uiState()
 openFileClicked = @openFile;
 
-calories = 0;
-elevation = [];
+route = [];
 
-function openFile(elevationPlot, distanceG, speedG, speedL)
+function openFile(elevationPlot, distanceG, speedG, speedL, gx)
     [f,p] = uigetfile('*.gpx');
     if isequal(f,0)
        disp('User selected Cancel');
     else
+       cla(elevationPlot);
+       cla(gx);
+       
        route = loadgpx(fullfile(p,f),'ElevationUnits','meters');
        
        % elevation
@@ -104,7 +101,12 @@ function openFile(elevationPlot, distanceG, speedG, speedL)
        % speed
        s = speed(d, route(:,10:12));
        speedG.Value = s*3.6;
-       speedL.Text = sprintf('Speed: %.2f KM/H', s*3.6);
+       speedL.Text = sprintf('Average Speed: %.2f KM/H', s*3.6);
+       
+       % map
+       lats = route(:,4)';
+       longs = route(:,5)';
+       geoplot(gx,lats,longs,'g-*');
     end
 end
 
