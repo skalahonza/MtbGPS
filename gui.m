@@ -19,14 +19,14 @@ gx.Layout.Column = 1;
 geobasemap(gx,'streets');
 
 %% speed, distance and fitness panel
-leftG = uigridlayout(mainG,[1,5]);
-leftG.ColumnWidth = {'1x','1x','1x','1x','1x'}; 
+leftG = uigridlayout(mainG,[1,4]);
+leftG.ColumnWidth = {'1x','1x','1x','1x'}; 
 leftG.Layout.Row = 2;
 leftG.Layout.Column = 1;
 
 %% Distance
 distance = uilabel(leftG);
-distance.Text = '0.00';
+distance.Text = 'Distance: 0 KM';
 distance.FontSize = 28;
 distance.HorizontalAlignment = 'center';
 
@@ -40,13 +40,9 @@ speedL.FontSize = 28;
 
 %% Fitness
 fitness = uilabel(leftG);
-fitness.Text = '0';
+fitness.Text = '0 kcal';
 fitness.FontSize = 28;
 fitness.HorizontalAlignment = 'center';
-fitnessL = uilabel(leftG);
-fitnessL.Text = 'Energy: kcal';
-fitnessL.FontSize = 14;
-fitnessL.HorizontalAlignment = 'center';
 
 %% elevation
 elevation = uiaxes(mainG, ...
@@ -57,9 +53,9 @@ elevation.Layout.Column = 1;
 elevation.YLim = [0 inf];
 
 elevationL = uilabel(mainG);
-elevationL.FontSize = 14;
+elevationL.FontSize = 28;
 elevationL.HorizontalAlignment = 'center';
-elevationL.Text = 'Elevation: m';
+elevationL.Text = 'Elevation (meters)';
 elevationL.Layout.Row = 4;
 elevationL.Layout.Column = 1;
 
@@ -91,8 +87,8 @@ function openFile(elevationPlot, distanceG, speedG, speedL, gx, fig)
         route = loadgpx(fullfile(p,f),'ElevationUnits','meters');
        catch
         uialert(fig,'Error parsing GPX file.','Invalid File');
-        route = [];
         close(d);
+        return;
        end
        
        % elevation
