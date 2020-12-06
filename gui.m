@@ -56,6 +56,7 @@ elevation.Layout.Row = 3;
 elevation.Layout.Column = 1;
 elevation.YLim = [0 inf];
 title(elevation, 'Elevation over time');
+grid(elevation,'on');
 ylabel(elevation,'Elevation (m)');
 
 %% Speed graph
@@ -67,6 +68,7 @@ speedG.Layout.Column = 1;
 speedG.YLim = [0 100];
 ylabel(speedG,'Speed (KM/H)');
 title(speedG, 'Speed over time');
+grid(speedG,'on');
 linkaxes([elevation, speedG],'x');
 
 %% handlers
