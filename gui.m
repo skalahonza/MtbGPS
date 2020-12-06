@@ -103,7 +103,7 @@ function openFile(elevationPlot, distanceG, avgSpeedL, topSpeedL,speedG,...
        
        % elevation
        elevation = route(:,3);       
-       plot(elevationPlot, times', elevation' ,'-x');
+       area(elevationPlot, times', elevation');
        elevationPlot.YLim = [min(elevation) max(elevation)];
        
        % distance
@@ -117,7 +117,7 @@ function openFile(elevationPlot, distanceG, avgSpeedL, topSpeedL,speedG,...
        % speed graph
        cumulativeSpeeds = msToKmh(cumSpeed(route(:,1), route(:,2), times));
        speedG.YLim = [min(cumulativeSpeeds) max(cumulativeSpeeds)];
-       plot(speedG, times(2:end)', cumulativeSpeeds','-x');
+       plot(speedG, times(2:end)', cumulativeSpeeds','-');
        
        % top speed
        topSpeedL.Text = sprintf('Top Speed: %.2f KM/H',...
