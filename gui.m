@@ -8,20 +8,20 @@ m = uimenu(fig, 'Text','File');
 mOpen = uimenu(m,'Text','Open');
 
 %% Dashboard
-mainG = uigridlayout(fig,[3 2]);
-mainG.RowHeight = {'7x','3x', 30};
-mainG.ColumnWidth = {150 ,'1x'};
+mainG = uigridlayout(fig,[4 1]);
+mainG.RowHeight = {'7x', 60,'3x', 30};
+mainG.ColumnWidth = {'1x'};
 
 %% map
 gx = geoaxes(mainG);
 gx.Layout.Row = 1;
-gx.Layout.Column = 2;
+gx.Layout.Column = 1;
 geobasemap(gx,'streets');
 
-%% left panel
-leftG = uigridlayout(mainG,[6 1]);
-leftG.RowHeight = {'1x',30,'fit','1x','fit','1x'}; 
-leftG.Layout.Row = 1;
+%% speed, distance and fitness panel
+leftG = uigridlayout(mainG,[1,5]);
+leftG.ColumnWidth = {'1x','1x','1x','1x','1x'}; 
+leftG.Layout.Row = 2;
 leftG.Layout.Column = 1;
 
 %% Distance
@@ -29,10 +29,6 @@ distance = uilabel(leftG);
 distance.Text = '0.00';
 distance.FontSize = 28;
 distance.HorizontalAlignment = 'center';
-distanceL = uilabel(leftG);
-distanceL.Text = 'Distance: KM';
-distanceL.FontSize = 14;
-distanceL.HorizontalAlignment = 'center';
 
 %% Speed
 speed = uigauge(leftG,'semicircular');
@@ -40,7 +36,7 @@ speed.Limits = [0 50];
 speedL = uilabel(leftG);
 speedL.Text = 'Average Speed: 0 KM/H';
 speedL.HorizontalAlignment = 'center';
-speedL.FontSize = 14;
+speedL.FontSize = 28;
 
 %% Fitness
 fitness = uilabel(leftG);
@@ -56,22 +52,23 @@ fitnessL.HorizontalAlignment = 'center';
 elevation = uiaxes(mainG, ...
     'XLim', [0 100], ...
     'YLim', [-100 100]);
-elevation.Layout.Row = 2;
-elevation.Layout.Column = [1, 2];
+elevation.Layout.Row = 3;
+elevation.Layout.Column = 1;
 elevation.YLim = [0 inf];
 
 elevationL = uilabel(mainG);
 elevationL.FontSize = 14;
 elevationL.HorizontalAlignment = 'center';
 elevationL.Text = 'Elevation: m';
-elevationL.Layout.Column = [1 2];
+elevationL.Layout.Row = 4;
+elevationL.Layout.Column = 1;
 
 %% handlers
 [openFileClicked] = uiState();
 
 % Open file clicked
 mOpen.MenuSelectedFcn = @(src, event)openFileClicked(elevation,...
-    distance, speed, speedL, gx);
+    distance, speed, speedL, gx, fig);
 end
 
 function [openFileClicked] = uiState()
@@ -79,7 +76,7 @@ openFileClicked = @openFile;
 
 route = [];
 
-function openFile(elevationPlot, distanceG, speedG, speedL, gx)
+function openFile(elevationPlot, distanceG, speedG, speedL, gx, fig)
     [f,p] = uigetfile('*.gpx');
     if isequal(f,0)
        disp('User selected Cancel');
@@ -87,7 +84,16 @@ function openFile(elevationPlot, distanceG, speedG, speedL, gx)
        cla(elevationPlot);
        cla(gx);
        
-       route = loadgpx(fullfile(p,f),'ElevationUnits','meters');
+       d = uiprogressdlg(fig,'Title','Loading GPX file...','Indeterminate','on');
+       drawnow
+              
+       try
+        route = loadgpx(fullfile(p,f),'ElevationUnits','meters');
+       catch
+        uialert(fig,'Error parsing GPX file.','Invalid File');
+        route = [];
+        close(d);
+       end
        
        % elevation
        elevation = route(:,3);       
@@ -96,7 +102,7 @@ function openFile(elevationPlot, distanceG, speedG, speedL, gx)
        
        % distance
        d = distance(route(:,1),route(:,2));
-       distanceG.Text = num2str(d/1000);
+       distanceG.Text = sprintf('Distance: %.2f KM',d/1000);
        
        % speed
        s = speed(d, route(:,10:12));
