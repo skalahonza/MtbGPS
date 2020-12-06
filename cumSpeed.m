@@ -2,24 +2,32 @@ function cs = cumSpeed(X, Y, times)
 distances = cumDistance(X, Y);
 seconds = cumSeconds(times);
 
-distances = accumulate(distances);
-seconds = accumulate(seconds);
+accumulation = 20;
+distances = accumulate(distances, accumulation);
+seconds = accumulate(seconds, accumulation);
 
 cs = distances./seconds;
 end
 
-function B = accumulate(A)
-% normalize matrix dimension so it is divisible by 3
+function B = accumulate(A, n)
+% normalize matrix dimension so it is divisible by n
 [m,~] = size(A);
-diff = mod(m,3);
+diff = n - mod(m,n);
 B = [A; zeros(diff,1)];
 
-% accumulate matrix by 3
-B = [B(1:3:end) B(2:3:end) B(3:3:end)];
+
+C = zeros((m+diff)/n,n);
+% accumulate matrix by n
+for i = 1:n
+    C(:,i) = B(i:n:end);
+end
+B = C;
+
+% use mean as the accumulator function
 B = mean(B,2);
 
-% unfold accumulated values
-B = repelem(B,3,1);
+% repeat accumulated values
+B = repelem(B,n,1);
 
 % without rows that served for normalization
 B = B(1:end-diff,:);
