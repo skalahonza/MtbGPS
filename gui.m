@@ -97,6 +97,12 @@ function openFile(elevationPlot, distanceG, avgSpeedL, topSpeedL,speedG,...
         return;
        end
        
+       [count, ~] = size(route);
+       if count < 50
+           uialert(fig,'Not enough data for calcualtion and plotting. You need at least 50 points.','Not enough data');
+           return;
+       end
+       
        times = datetime(route(:,7:12));
        
        % elevation
