@@ -8,72 +8,70 @@ m = uimenu(fig, 'Text','File');
 mOpen = uimenu(m,'Text','Open');
 
 %% Dashboard
-mainG = uigridlayout(fig,[6 1]);
-mainG.RowHeight = {'8x', 60, 30,'1x', 30,'1x'};
+mainG = uigridlayout(fig,[4 1]);
+mainG.RowHeight = {40, '6x', '2x', '2x'};
 mainG.ColumnWidth = {'1x'};
 
 %% map
 gx = geoaxes(mainG);
-gx.Layout.Row = 1;
+gx.Layout.Row = 2;
 gx.Layout.Column = 1;
 geobasemap(gx,'streets');
 
-%% speed, distance and fitness panel
-leftG = uigridlayout(mainG,[1,2]);
-leftG.ColumnWidth = {'1x','1x'}; 
-leftG.Layout.Row = 2;
+%% Distance and Speed panel
+leftG = uigridlayout(mainG,[1,4]);
+leftG.ColumnWidth = {'1x','1x','1x','1x'}; 
+leftG.Layout.Row = 1;
 leftG.Layout.Column = 1;
 
 %% Distance
 distance = uilabel(leftG);
 distance.Text = 'Distance: 0 KM';
-distance.FontSize = 28;
+distance.FontSize = 14;
 distance.HorizontalAlignment = 'center';
 
-%% Speed
+%% Average Speed
 avgSpeedL = uilabel(leftG);
 avgSpeedL.Text = 'Average Speed: 0 KM/H';
 avgSpeedL.HorizontalAlignment = 'center';
-avgSpeedL.FontSize = 28;
+avgSpeedL.FontSize = 14;
+
+%% Top speed
+topSpeedL = uilabel(leftG);
+topSpeedL.Text = 'Top Speed: 0 KM/H';
+topSpeedL.HorizontalAlignment = 'center';
+topSpeedL.FontSize = 14;
+
+%% Duration
+durationL = uilabel(leftG);
+durationL.Text = 'Duration: hh:mm:ss';
+durationL.HorizontalAlignment = 'center';
+durationL.FontSize = 14;
 
 %% elevation graph
-elevationL = uilabel(mainG);
-elevationL.FontSize = 28;
-elevationL.HorizontalAlignment = 'center';
-elevationL.Text = 'Elevation (meters)';
-elevationL.Layout.Row = 3;
-elevationL.Layout.Column = 1;
-
 elevation = uiaxes(mainG, ...
     'XLim', [0 100], ...
     'YLim', [-100 100]);
-elevation.Layout.Row = 4;
+elevation.Layout.Row = 3;
 elevation.Layout.Column = 1;
 elevation.YLim = [0 inf];
-ylabel(elevation,'Elevation (meters)');
+ylabel(elevation,'Elevation (m)');
 
 %% Speed graph
-speedL = uilabel(mainG);
-speedL.FontSize = 28;
-speedL.HorizontalAlignment = 'center';
-speedL.Text = 'Speed KM/H';
-speedL.Layout.Row = 5;
-speedL.Layout.Column = 1;
-
 speedG = uiaxes(mainG, ...
     'XLim', [0 100], ...
     'YLim', [-100 100]);
-speedG.Layout.Row = 6;
+speedG.Layout.Row = 4;
 speedG.Layout.Column = 1;
 speedG.YLim = [0 100];
-ylabel(speedG,'Speed KM/H');
+ylabel(speedG,'Speed (KM/H)');
 
 %% handlers
 [openFileClicked] = uiState();
 
 % Open file clicked
 mOpen.MenuSelectedFcn = @(src, event)openFileClicked(elevation,...
-    distance, avgSpeedL, speedG, gx, fig);
+    distance, avgSpeedL, topSpeedL, speedG, durationL, gx, fig);
 end
 
 function [openFileClicked] = uiState()
@@ -81,7 +79,8 @@ openFileClicked = @openFile;
 
 route = [];
 
-function openFile(elevationPlot, distanceG, avgSpeedL, speedG, gx, fig)
+function openFile(elevationPlot, distanceG, avgSpeedL, topSpeedL,speedG,...
+        durationL, gx, fig)
     [f,p] = uigetfile('*.gpx');
     if isequal(f,0)
        disp('User selected Cancel');
@@ -100,9 +99,11 @@ function openFile(elevationPlot, distanceG, avgSpeedL, speedG, gx, fig)
         return;
        end
        
+       times = datetime(route(:,7:12));
+       
        % elevation
        elevation = route(:,3);       
-       plot(elevationPlot, elevation' ,'-x');
+       plot(elevationPlot, times', elevation' ,'-x');
        elevationPlot.YLim = [min(elevation) max(elevation)];
        
        % distance
@@ -110,13 +111,21 @@ function openFile(elevationPlot, distanceG, avgSpeedL, speedG, gx, fig)
        distanceG.Text = sprintf('Distance: %.2f KM',d/1000);
        
        % average speed
-       ms = speed(d, route(:,10:12));
+       ms = speed(d, times);
        avgSpeedL.Text = sprintf('Average Speed: %.2f KM/H', msToKmh(ms));
        
        % speed graph
-       cumulativeSpeeds = msToKmh(cumSpeed(route(:,1),route(:,2),route(:,10:12)));
+       cumulativeSpeeds = msToKmh(cumSpeed(route(:,1), route(:,2), times));
        speedG.YLim = [min(cumulativeSpeeds) max(cumulativeSpeeds)];
-       plot(speedG, cumulativeSpeeds','-x');
+       plot(speedG, times(2:end)', cumulativeSpeeds','-x');
+       
+       % top speed
+       topSpeedL.Text = sprintf('Top Speed: %.2f KM/H',...
+           max(cumulativeSpeeds));
+       
+       % duration
+       d = abs(times(1) - times(end));
+       durationL.Text = sprintf('Duration: %s', string(d,'hh:mm:ss'));       
        
        % map
        lats = route(:,4)';
