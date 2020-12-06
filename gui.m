@@ -85,10 +85,7 @@ function openFile(elevationPlot, distanceG, avgSpeedL, topSpeedL,speedG,...
     [f,p] = uigetfile('*.gpx');
     if isequal(f,0)
        disp('User selected Cancel');
-    else
-       cla(elevationPlot);
-       cla(gx);
-       
+    else              
        d = uiprogressdlg(fig,'Title','Loading GPX file...','Indeterminate','on');
        drawnow
               
