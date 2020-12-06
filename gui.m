@@ -8,8 +8,8 @@ m = uimenu(fig, 'Text','File');
 mOpen = uimenu(m,'Text','Open');
 
 %% Dashboard
-mainG = uigridlayout(fig,[4 1]);
-mainG.RowHeight = {'7x', 60,'3x', 30};
+mainG = uigridlayout(fig,[6 1]);
+mainG.RowHeight = {'8x', 60, 30,'1x', 30,'1x'};
 mainG.ColumnWidth = {'1x'};
 
 %% map
@@ -19,8 +19,8 @@ gx.Layout.Column = 1;
 geobasemap(gx,'streets');
 
 %% speed, distance and fitness panel
-leftG = uigridlayout(mainG,[1,4]);
-leftG.ColumnWidth = {'1x','1x','1x','1x'}; 
+leftG = uigridlayout(mainG,[1,2]);
+leftG.ColumnWidth = {'1x','1x'}; 
 leftG.Layout.Row = 2;
 leftG.Layout.Column = 1;
 
@@ -31,40 +31,49 @@ distance.FontSize = 28;
 distance.HorizontalAlignment = 'center';
 
 %% Speed
-speed = uigauge(leftG,'semicircular');
-speed.Limits = [0 50];
-speedL = uilabel(leftG);
-speedL.Text = 'Average Speed: 0 KM/H';
-speedL.HorizontalAlignment = 'center';
-speedL.FontSize = 28;
+avgSpeedL = uilabel(leftG);
+avgSpeedL.Text = 'Average Speed: 0 KM/H';
+avgSpeedL.HorizontalAlignment = 'center';
+avgSpeedL.FontSize = 28;
 
-%% Fitness
-fitness = uilabel(leftG);
-fitness.Text = '0 kcal';
-fitness.FontSize = 28;
-fitness.HorizontalAlignment = 'center';
-
-%% elevation
-elevation = uiaxes(mainG, ...
-    'XLim', [0 100], ...
-    'YLim', [-100 100]);
-elevation.Layout.Row = 3;
-elevation.Layout.Column = 1;
-elevation.YLim = [0 inf];
-
+%% elevation graph
 elevationL = uilabel(mainG);
 elevationL.FontSize = 28;
 elevationL.HorizontalAlignment = 'center';
 elevationL.Text = 'Elevation (meters)';
-elevationL.Layout.Row = 4;
+elevationL.Layout.Row = 3;
 elevationL.Layout.Column = 1;
+
+elevation = uiaxes(mainG, ...
+    'XLim', [0 100], ...
+    'YLim', [-100 100]);
+elevation.Layout.Row = 4;
+elevation.Layout.Column = 1;
+elevation.YLim = [0 inf];
+ylabel(elevation,'Elevation (meters)');
+
+%% Speed graph
+speedL = uilabel(mainG);
+speedL.FontSize = 28;
+speedL.HorizontalAlignment = 'center';
+speedL.Text = 'Speed KM/H';
+speedL.Layout.Row = 5;
+speedL.Layout.Column = 1;
+
+speedG = uiaxes(mainG, ...
+    'XLim', [0 100], ...
+    'YLim', [-100 100]);
+speedG.Layout.Row = 6;
+speedG.Layout.Column = 1;
+speedG.YLim = [0 100];
+ylabel(speedG,'Speed KM/H');
 
 %% handlers
 [openFileClicked] = uiState();
 
 % Open file clicked
 mOpen.MenuSelectedFcn = @(src, event)openFileClicked(elevation,...
-    distance, speed, speedL, gx, fig);
+    distance, avgSpeedL, speedG, gx, fig);
 end
 
 function [openFileClicked] = uiState()
@@ -72,7 +81,7 @@ openFileClicked = @openFile;
 
 route = [];
 
-function openFile(elevationPlot, distanceG, speedG, speedL, gx, fig)
+function openFile(elevationPlot, distanceG, avgSpeedL, speedG, gx, fig)
     [f,p] = uigetfile('*.gpx');
     if isequal(f,0)
        disp('User selected Cancel');
@@ -100,10 +109,14 @@ function openFile(elevationPlot, distanceG, speedG, speedL, gx, fig)
        d = distance(route(:,1),route(:,2));
        distanceG.Text = sprintf('Distance: %.2f KM',d/1000);
        
-       % speed
-       s = speed(d, route(:,10:12));
-       speedG.Value = s*3.6;
-       speedL.Text = sprintf('Average Speed: %.2f KM/H', s*3.6);
+       % average speed
+       ms = speed(d, route(:,10:12));
+       avgSpeedL.Text = sprintf('Average Speed: %.2f KM/H', msToKmh(ms));
+       
+       % speed graph
+       cumulativeSpeeds = msToKmh(cumSpeed(route(:,1),route(:,2),route(:,10:12)));
+       speedG.YLim = [min(cumulativeSpeeds) max(cumulativeSpeeds)];
+       plot(speedG, cumulativeSpeeds','-x');
        
        % map
        lats = route(:,4)';
