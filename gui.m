@@ -65,6 +65,7 @@ speedG.Layout.Row = 4;
 speedG.Layout.Column = 1;
 speedG.YLim = [0 100];
 ylabel(speedG,'Speed (KM/H)');
+linkaxes([elevation, speedG],'x');
 
 %% handlers
 [openFileClicked] = uiState();
