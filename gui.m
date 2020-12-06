@@ -138,7 +138,7 @@ function openFile(elevationPlot, distanceG, avgSpeedL, topSpeedL,speedG,...
        % map
        lats = route(:,4)';
        longs = route(:,5)';
-       geoplot(gx,lats,longs,'g-*');
+       geoplot(gx,lats,longs,'r-.');
     end
 end
 
