@@ -20,7 +20,7 @@ geobasemap(gx,'streets');
 
 %% Distance and Speed panel
 leftG = uigridlayout(mainG,[1,4]);
-leftG.ColumnWidth = {'1x','1x','1x','1x'}; 
+leftG.ColumnWidth = {'1x','1x','1x','1x'};
 leftG.Layout.Row = 1;
 leftG.Layout.Column = 1;
 
@@ -84,62 +84,62 @@ openFileClicked = @openFile;
 
 route = [];
 
-function openFile(elevationPlot, distanceG, avgSpeedL, topSpeedL,speedG,...
-        durationL, gx, fig)
-    [f,p] = uigetfile('*.gpx');
-    if isequal(f,0)
-       disp('User selected Cancel');
-    else              
-       d = uiprogressdlg(fig,'Title','Loading GPX file...','Indeterminate','on');
-       drawnow
-              
-       try
-        route = loadgpx(fullfile(p,f),'ElevationUnits','meters');
-       catch
-        uialert(fig,'Error parsing GPX file.','Invalid File');
-        close(d);
-        return;
-       end
-       
-       [count, ~] = size(route);
-       if count < 50
-           uialert(fig,'Not enough data for calcualtion and plotting. You need at least 50 points.','Not enough data');
-           return;
-       end
-       
-       times = datetime(route(:,7:12));
-       
-       % elevation
-       elevation = route(:,3);       
-       area(elevationPlot, times', elevation');
-       elevationPlot.YLim = [min(elevation) max(elevation)];
-       
-       % distance
-       d = distance(route(:,1),route(:,2));
-       distanceG.Text = sprintf('Distance: %.2f KM',d/1000);
-       
-       % average speed
-       ms = speed(d, times);
-       avgSpeedL.Text = sprintf('Average Speed: %.2f KM/H', msToKmh(ms));
-       
-       % speed graph
-       cumulativeSpeeds = msToKmh(cumSpeed(route(:,1), route(:,2), times));
-       speedG.YLim = [min(cumulativeSpeeds) max(cumulativeSpeeds)];
-       plot(speedG, times(2:end)', cumulativeSpeeds','-');
-       
-       % top speed
-       topSpeedL.Text = sprintf('Top Speed: %.2f KM/H',...
-           max(cumulativeSpeeds));
-       
-       % duration
-       d = abs(times(1) - times(end));
-       durationL.Text = sprintf('Duration: %s', string(d,'hh:mm:ss'));       
-       
-       % map
-       lats = route(:,4)';
-       longs = route(:,5)';
-       geoplot(gx,lats,longs,'r-.');
+    function openFile(elevationPlot, distanceG, avgSpeedL, topSpeedL,speedG,...
+            durationL, gx, fig)
+        [f,p] = uigetfile('*.gpx');
+        if isequal(f,0)
+            disp('User selected Cancel');
+        else
+            d = uiprogressdlg(fig,'Title','Loading GPX file...','Indeterminate','on');
+            drawnow
+            
+            try
+                route = loadgpx(fullfile(p,f),'ElevationUnits','meters');
+            catch
+                uialert(fig,'Error parsing GPX file.','Invalid File');
+                close(d);
+                return;
+            end
+            
+            [count, ~] = size(route);
+            if count < 50
+                uialert(fig,'Not enough data for calcualtion and plotting. You need at least 50 points.','Not enough data');
+                return;
+            end
+            
+            times = datetime(route(:,7:12));
+            
+            % elevation
+            elevation = route(:,3);
+            area(elevationPlot, times', elevation');
+            elevationPlot.YLim = [min(elevation) max(elevation)];
+            
+            % distance
+            d = distance(route(:,1),route(:,2));
+            distanceG.Text = sprintf('Distance: %.2f KM',d/1000);
+            
+            % average speed
+            ms = speed(d, times);
+            avgSpeedL.Text = sprintf('Average Speed: %.2f KM/H', msToKmh(ms));
+            
+            % speed graph
+            cumulativeSpeeds = msToKmh(cumSpeed(route(:,1), route(:,2), times));
+            speedG.YLim = [min(cumulativeSpeeds) max(cumulativeSpeeds)];
+            plot(speedG, times(2:end)', cumulativeSpeeds','-');
+            
+            % top speed
+            topSpeedL.Text = sprintf('Top Speed: %.2f KM/H',...
+                max(cumulativeSpeeds));
+            
+            % duration
+            d = abs(times(1) - times(end));
+            durationL.Text = sprintf('Duration: %s', string(d,'hh:mm:ss'));
+            
+            % map
+            lats = route(:,4)';
+            longs = route(:,5)';
+            geoplot(gx,lats,longs,'r-.');
+        end
     end
-end
 
 end
