@@ -1,5 +1,5 @@
 function route = loadgpx(fileName)
-%LOADGPX Loads route points from a GPS interchange file
+% LOADGPX Loads route points from a GPS interchange file
 % ROUTE = LOADGPX(FILENAME) Loads route point information from a .GPX
 %   GPS interchange file.  This utility is not a general-purpose
 %   implementation of GPX reading and is intended mostly for reading the

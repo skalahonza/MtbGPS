@@ -1,4 +1,10 @@
 function B = accumulate(A, n)
+% ACCUMULATE Accumulates every n rows of matrix A using mean as the
+% accumulator function. Then replicate every accumulated row n times.
+% B = accumulate(A, n) Accumulate A and write result into B
+% A is a Nx1 matrix
+% B is a Nx1 matrix
+
 % normalize matrix dimension so it is divisible by n
 [m,~] = size(A);
 diff = n - mod(m,n);
