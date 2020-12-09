@@ -95,8 +95,8 @@ route = [];
             
             try
                 route = loadgpx(fullfile(p,f));
-            catch
-                uialert(fig,'Error parsing GPX file.','Invalid File');
+            catch ME
+                uialert(fig,ME.message, ME.identifier);
                 close(d);
                 return;
             end
