@@ -80,6 +80,9 @@ for i=1:ptCt
                 'Malformed elevation in point %i.  (%s)', i, Ex.message);
             throw(ME);
         end
+    else
+        % no elevation
+        route(i,COL_Z) = 0;
     end
 end
 

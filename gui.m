@@ -103,7 +103,8 @@ route = [];
             
             [count, ~] = size(route);
             if count < 50
-                uialert(fig,'Not enough data for calcualtion and plotting. You need at least 50 points.','Not enough data');
+                uialert(fig,...
+                    'Not enough data for calcualtion and plotting. You need at least 50 points.','Not enough data');
                 return;
             end
             
@@ -112,7 +113,10 @@ route = [];
             % elevation
             elevation = route(:,3);
             area(elevationPlot, times', elevation');
-            elevationPlot.YLim = [min(elevation) max(elevation)];
+            elevationLimits = [min(elevation) max(elevation)];
+            if elevationLimits(1) ~= elevationLimits(end)
+                elevationPlot.YLim = [elevationLimits(1), elevationLimits(end)];
+            end
             
             % distance
             d = distance(route(:,1),route(:,2));
@@ -124,7 +128,10 @@ route = [];
             
             % speed graph
             cumulativeSpeeds = msToKmh(cumSpeed(route(:,1), route(:,2), times));
-            speedG.YLim = [min(cumulativeSpeeds) max(cumulativeSpeeds)];
+            speedLimits = [min(cumulativeSpeeds) max(cumulativeSpeeds)];
+            if speedLimits(1) ~= speedLimits(end)
+                speedG.YLim = [speedLimits(1) speedLimits(end)];
+            end
             plot(speedG, times(2:end)', cumulativeSpeeds','-');
             
             % top speed
