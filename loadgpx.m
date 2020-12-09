@@ -1,4 +1,4 @@
-function route = loadgpx(fileName,varargin)
+function route = loadgpx(fileName)
 %LOADGPX Loads route points from a GPS interchange file
 % ROUTE = LOADGPX(FILENAME) Loads route point information from a .GPX
 %   GPS interchange file.  This utility is not a general-purpose
@@ -13,9 +13,6 @@ function route = loadgpx(fileName,varargin)
 % Note that the mapping of latitude/longitude assumes an approximate spherical
 % transformation to rectangular coordinates.
 %
-% Additional property/value arguments:
-%   LOADGPX(...,'ElevationUnits','meters',...) uses meters for elevation
-%   LOADGPX(...,'Viz',true,...) displays the route and elevation map
 %
 %   For more information on the gmap pedometer and GPX output:
 %     http://www.gmap-pedometer.com/

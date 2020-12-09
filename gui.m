@@ -94,7 +94,7 @@ route = [];
             drawnow
             
             try
-                route = loadgpx(fullfile(p,f),'ElevationUnits','meters');
+                route = loadgpx(fullfile(p,f));
             catch
                 uialert(fig,'Error parsing GPX file.','Invalid File');
                 close(d);
