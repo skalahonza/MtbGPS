@@ -3,11 +3,11 @@ Processing of *.gpx files with data from GPS receivers.
 
 ## Description
 ### Evaluation of:
-* route length
-* speed
-* calories burned
-* elevation
-* route display in maps
+* Distance traveled
+* Duration 
+* Speed (top, average)
+* Elevation (progress, top)
+* Route displayed in map
 
 To read data from *.gpx files use the function [loadgpx.m](https://cw.fel.cvut.cz/wiki/_media/courses/b0b17mtb/loadgpx.m)
 Display the route on the map using the **geoplot** function, resp. class **GeographicAxes** (function geoaxes).
