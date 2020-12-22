@@ -25,10 +25,10 @@ leftG.Layout.Row = 1;
 leftG.Layout.Column = 1;
 
 %% Distance
-distance = uilabel(leftG);
-distance.Text = 'Distance: 0 KM';
-distance.FontSize = 14;
-distance.HorizontalAlignment = 'center';
+distanceG = uilabel(leftG);
+distanceG.Text = 'Distance: 0 KM';
+distanceG.FontSize = 14;
+distanceG.HorizontalAlignment = 'center';
 
 %% Average Speed
 avgSpeedL = uilabel(leftG);
@@ -49,15 +49,15 @@ durationL.HorizontalAlignment = 'center';
 durationL.FontSize = 14;
 
 %% elevation graph
-elevation = uiaxes(mainG, ...
+elevationPlot = uiaxes(mainG, ...
     'XLim', [0 100], ...
     'YLim', [-100 100]);
-elevation.Layout.Row = 3;
-elevation.Layout.Column = 1;
-elevation.YLim = [0 inf];
-title(elevation, 'Elevation over time');
-grid(elevation,'on');
-ylabel(elevation,'Elevation (m)');
+elevationPlot.Layout.Row = 3;
+elevationPlot.Layout.Column = 1;
+elevationPlot.YLim = [0 inf];
+title(elevationPlot, 'Elevation over time');
+grid(elevationPlot,'on');
+ylabel(elevationPlot,'Elevation (m)');
 
 %% Speed graph
 speedG = uiaxes(mainG, ...
@@ -69,84 +69,78 @@ speedG.YLim = [0 100];
 ylabel(speedG,'Speed (KM/H)');
 title(speedG, 'Speed over time');
 grid(speedG,'on');
-linkaxes([elevation, speedG],'x');
+linkaxes([elevationPlot, speedG],'x');
+
+%% UI data
+route = [];
+elevation = [];
+cumulativeSpeeds = [];
 
 %% handlers
-[openFileClicked] = uiState();
-
 % Open file clicked
-mOpen.MenuSelectedFcn = @(src, event)openFileClicked(elevation,...
-    distance, avgSpeedL, topSpeedL, speedG, durationL, gx, fig);
-end
+mOpen.MenuSelectedFcn = @(src, event)openFile();
 
-function [openFileClicked] = uiState()
-openFileClicked = @openFile;
+function openFile()
+    [f,p] = uigetfile('*.gpx');
+    if isequal(f,0)
+        disp('User selected Cancel');
+    else
+        d = uiprogressdlg(fig,'Title','Loading GPX file...','Indeterminate','on');
+        drawnow
 
-route = [];
-
-    function openFile(elevationPlot, distanceG, avgSpeedL, topSpeedL,speedG,...
-            durationL, gx, fig)
-        [f,p] = uigetfile('*.gpx');
-        if isequal(f,0)
-            disp('User selected Cancel');
-        else
-            d = uiprogressdlg(fig,'Title','Loading GPX file...','Indeterminate','on');
-            drawnow
-            
-            try
-                route = loadgpx(fullfile(p,f));
-            catch ME
-                uialert(fig,ME.message, ME.identifier);
-                close(d);
-                return;
-            end
-            
-            [count, ~] = size(route);
-            if count < 50
-                uialert(fig,...
-                    'Not enough data for calcualtion and plotting. You need at least 50 points.','Not enough data');
-                return;
-            end
-            
-            times = datetime(route(:,7:12));
-            
-            % elevation
-            elevation = route(:,3);
-            area(elevationPlot, times', elevation');
-            elevationLimits = [min(elevation) max(elevation)];
-            if elevationLimits(1) ~= elevationLimits(end)
-                elevationPlot.YLim = [elevationLimits(1), elevationLimits(end)];
-            end
-            
-            % distance
-            d = distance(route(:,1),route(:,2));
-            distanceG.Text = sprintf('Distance: %.2f KM',d/1000);
-            
-            % average speed
-            ms = speed(d, times);
-            avgSpeedL.Text = sprintf('Average Speed: %.2f KM/H', msToKmh(ms));
-            
-            % speed graph
-            cumulativeSpeeds = msToKmh(cumSpeed(route(:,1), route(:,2), times));
-            speedLimits = [min(cumulativeSpeeds) max(cumulativeSpeeds)];
-            if speedLimits(1) ~= speedLimits(end)
-                speedG.YLim = [speedLimits(1) speedLimits(end)];
-            end
-            plot(speedG, times(2:end)', cumulativeSpeeds','-');
-            
-            % top speed
-            topSpeedL.Text = sprintf('Top Speed: %.2f KM/H',...
-                max(cumulativeSpeeds));
-            
-            % duration
-            d = abs(times(1) - times(end));
-            durationL.Text = sprintf('Duration: %s', string(d,'hh:mm:ss'));
-            
-            % map
-            lats = route(:,4)';
-            longs = route(:,5)';
-            geoplot(gx,lats,longs,'r-.');
+        try
+            route = loadgpx(fullfile(p,f));
+        catch ME
+            uialert(fig,ME.message, ME.identifier);
+            close(d);
+            return;
         end
-    end
 
+        [count, ~] = size(route);
+        if count < 50
+            uialert(fig,...
+                'Not enough data for calcualtion and plotting. You need at least 50 points.','Not enough data');
+            return;
+        end
+
+        times = datetime(route(:,7:12));
+
+        % elevation
+        elevation = route(:,3);
+        area(elevationPlot, times', elevation');
+        elevationLimits = [min(elevation) max(elevation)];
+        if elevationLimits(1) ~= elevationLimits(end)
+            elevationPlot.YLim = [elevationLimits(1), elevationLimits(end)];
+        end
+
+        % distance
+        d = distance(route(:,1),route(:,2));
+        distanceG.Text = sprintf('Distance: %.2f KM',d/1000);
+
+        % average speed
+        ms = speed(d, times);
+        avgSpeedL.Text = sprintf('Average Speed: %.2f KM/H', msToKmh(ms));
+
+        % speed graph
+        cumulativeSpeeds = msToKmh(cumSpeed(route(:,1), route(:,2), times));
+        speedLimits = [min(cumulativeSpeeds) max(cumulativeSpeeds)];
+        if speedLimits(1) ~= speedLimits(end)
+            speedG.YLim = [speedLimits(1) speedLimits(end)];
+        end
+        plot(speedG, times(2:end)', cumulativeSpeeds','-');
+
+        % top speed
+        topSpeedL.Text = sprintf('Top Speed: %.2f KM/H',...
+            max(cumulativeSpeeds));
+
+        % duration
+        d = abs(times(1) - times(end));
+        durationL.Text = sprintf('Duration: %s', string(d,'hh:mm:ss'));
+
+        % map
+        lats = route(:,4)';
+        longs = route(:,5)';
+        geoplot(gx,lats,longs,'r-.');
+    end
+end
 end
