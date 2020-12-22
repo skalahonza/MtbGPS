@@ -18,9 +18,9 @@ gx.Layout.Row = 2;
 gx.Layout.Column = 1;
 geobasemap(gx,'streets');
 
-%% Distance and Speed panel
+%% Distance, Elevation and Speed panel
 leftG = uigridlayout(mainG,[1,4]);
-leftG.ColumnWidth = {'1x','1x','1x','1x'};
+leftG.ColumnWidth = {'1x','1x','1x','1x','1x'};
 leftG.Layout.Row = 1;
 leftG.Layout.Column = 1;
 
@@ -47,6 +47,12 @@ durationL = uilabel(leftG);
 durationL.Text = 'Duration: hh:mm:ss';
 durationL.HorizontalAlignment = 'center';
 durationL.FontSize = 14;
+
+%% Highest elevation
+elevationL = uilabel(leftG);
+elevationL.Text = 'Hihgest Elevation: 0 m';
+elevationL.HorizontalAlignment = 'center';
+elevationL.FontSize = 14;
 
 %% elevation graph
 elevationPlot = uiaxes(mainG, ...
@@ -112,6 +118,8 @@ function openFile()
         if elevationLimits(1) ~= elevationLimits(end)
             elevationPlot.YLim = [elevationLimits(1), elevationLimits(end)];
         end
+        elevationL.Text = sprintf('Hihgest Elevation: %.2f m',...
+            elevationLimits(end));
 
         % distance
         d = distance(route(:,1),route(:,2));
