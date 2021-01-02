@@ -1,5 +1,4 @@
 function gui()
-close all force;
 fig = uifigure();
 fig.WindowState = 'maximized';
 

@@ -1,6 +1,14 @@
 # MtbGPS
 Processing of *.gpx files with data from GPS receivers.
 
+## How to run
+1. Open Matlab
+2. Lunch script called `gui.m`
+3. Click **File --> Open** on the top menu
+4. Open some .gpx file (you can use samples from **data** folder)
+5. Then you should see something like this
+![UI](images/ui.png)
+
 ## Description
 ### Evaluation of:
 * Distance traveled
