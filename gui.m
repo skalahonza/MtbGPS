@@ -90,6 +90,7 @@ function openFile()
     if isequal(f,0)
         disp('User selected Cancel');
     else
+        figure(fig);
         d = uiprogressdlg(fig,'Title','Loading GPX file...','Indeterminate','on');
         drawnow
 
